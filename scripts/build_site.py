@@ -29,6 +29,9 @@ SITE_OUT = REPO_ROOT / "site"
 SOURCE_DIR = REPO_ROOT / "source"
 BUILDERS_DIR = REPO_ROOT / "builders"
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from queries_data import QUERIES  # noqa: E402
+
 SCHEMA = {
     "documents": ["doc_id", "release", "repo", "canonical_kind", "path",
                   "upstream_url", "rendered_url", "sha256", "size_bytes"],
@@ -40,20 +43,7 @@ SCHEMA = {
                 "tokenize='porter unicode61 remove_diacritics 1'",
 }
 
-EXAMPLE_QUERIES = [
-    {
-        "question": "What inputs go into a unit fingerprint?",
-        "match": "fingerprint AND (input OR hash OR dirty OR fresh)",
-    },
-    {
-        "question": "Where does Cargo persist freshness state on disk (.fingerprint/)?",
-        "match": '"fingerprint" AND (directory OR json OR "on disk" OR store)',
-    },
-    {
-        "question": "What lives in target/, deps/, incremental/; rlib/rmeta linking layout?",
-        "match": "target AND (deps OR incremental OR rlib OR rmeta)",
-    },
-]
+EXAMPLE_QUERIES = [{"question": q["question"], "match": q["match"]} for q in QUERIES]
 
 
 def _commit_sha() -> str:

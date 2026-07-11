@@ -70,6 +70,9 @@ jobs:
             python scripts/build_all.py
           fi
 
+      - name: Relevance regression tests (canned queries)
+        run: python tests/test_queries.py
+
       - name: Assemble site/ directory
         run: python scripts/build_site.py
 
