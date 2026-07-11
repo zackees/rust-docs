@@ -1,0 +1,193 @@
+{
+  "anchors": {
+    "cargo": {
+      "commit": "f2d3ce0bd7f24a49f8f72d9000448f8838c4e850",
+      "repo": "rust-lang/cargo",
+      "resolved_via": "rust-lang/rust@1.95.0:src/tools/cargo submodule"
+    },
+    "rust": {
+      "commit": "59807616e1fa2540724bfbac14d7976d7e4a3860",
+      "release_date": "2026-04-14T19:55:32Z",
+      "repo": "rust-lang/rust",
+      "tag": "1.95.0"
+    },
+    "rustc-dev-guide": {
+      "anchor_policy": "nearest-commit-before-release-date",
+      "commit": "9aa27000d65c7ac888430051cbe1c1281440be80",
+      "repo": "rust-lang/rustc-dev-guide"
+    },
+    "sccache": {
+      "commit": "b799af2eea02bba9e0ef2550775fe10296b62981",
+      "repo": "mozilla/sccache",
+      "tag": "v0.16.0"
+    }
+  },
+  "files": [
+    {
+      "path": "1.95.0/rust/src/doc/rustc/src/command-line-arguments.md",
+      "sha256": "904603f034282bd49be0a77f8861a40907768f163a0b325b53e81d58554d3302",
+      "size_bytes": 21056,
+      "url": "https://raw.githubusercontent.com/rust-lang/rust/59807616e1fa2540724bfbac14d7976d7e4a3860/src/doc/rustc/src/command-line-arguments.md"
+    },
+    {
+      "path": "1.95.0/rust/src/doc/rustc/src/codegen-options/index.md",
+      "sha256": "c60c3071cbc791067e79f2ba6dcb18dc8be0f5f1f8ddcbfb5a023e594dacf714",
+      "size_bytes": 34934,
+      "url": "https://raw.githubusercontent.com/rust-lang/rust/59807616e1fa2540724bfbac14d7976d7e4a3860/src/doc/rustc/src/codegen-options/index.md"
+    },
+    {
+      "path": "1.95.0/cargo/src/doc/src/reference/build-cache.md",
+      "sha256": "8866bcb97bdd2abf2f8177a010a2cea29a73743f4ab39306ca036a30bd5e00ad",
+      "size_bytes": 6333,
+      "url": "https://raw.githubusercontent.com/rust-lang/cargo/f2d3ce0bd7f24a49f8f72d9000448f8838c4e850/src/doc/src/reference/build-cache.md"
+    },
+    {
+      "path": "1.95.0/cargo/src/doc/src/reference/build-scripts.md",
+      "sha256": "a742edf4dca70b70bb678121a75b16ef845f5f183670b96db9b789f008191259",
+      "size_bytes": 26101,
+      "url": "https://raw.githubusercontent.com/rust-lang/cargo/f2d3ce0bd7f24a49f8f72d9000448f8838c4e850/src/doc/src/reference/build-scripts.md"
+    },
+    {
+      "path": "1.95.0/cargo/src/cargo/core/compiler/fingerprint/mod.rs",
+      "sha256": "ecb50403d0a63451005c384947e8629b7c92cb4860b77b1ef212a6739733eed7",
+      "size_bytes": 92970,
+      "url": "https://raw.githubusercontent.com/rust-lang/cargo/f2d3ce0bd7f24a49f8f72d9000448f8838c4e850/src/cargo/core/compiler/fingerprint/mod.rs"
+    },
+    {
+      "path": "1.95.0/cargo/src/cargo/core/compiler/fingerprint/dep_info.rs",
+      "sha256": "28ca371c6051f4bf3010d73ffb72d318efe86b722adf7058dffb66a98095cfa1",
+      "size_bytes": 28079,
+      "url": "https://raw.githubusercontent.com/rust-lang/cargo/f2d3ce0bd7f24a49f8f72d9000448f8838c4e850/src/cargo/core/compiler/fingerprint/dep_info.rs"
+    },
+    {
+      "path": "1.95.0/cargo/src/cargo/core/compiler/unit.rs",
+      "sha256": "edcc3fb5d266cd1de90b2e630cafea34c0bbda6722a860d3614a0f60b0862d8b",
+      "size_bytes": 12380,
+      "url": "https://raw.githubusercontent.com/rust-lang/cargo/f2d3ce0bd7f24a49f8f72d9000448f8838c4e850/src/cargo/core/compiler/unit.rs"
+    },
+    {
+      "path": "1.95.0/cargo/src/cargo/core/compiler/unit_dependencies.rs",
+      "sha256": "17563082c4c7f47084272cf838400abc3c904de582da570bc473a1bb94d82896",
+      "size_bytes": 44194,
+      "url": "https://raw.githubusercontent.com/rust-lang/cargo/f2d3ce0bd7f24a49f8f72d9000448f8838c4e850/src/cargo/core/compiler/unit_dependencies.rs"
+    },
+    {
+      "path": "1.95.0/cargo/src/cargo/core/compiler/unit_graph.rs",
+      "sha256": "87f01c6ec128dead17abc6f58351f4172d5b847c579a3fd83343d86b7fc07c1b",
+      "size_bytes": 4756,
+      "url": "https://raw.githubusercontent.com/rust-lang/cargo/f2d3ce0bd7f24a49f8f72d9000448f8838c4e850/src/cargo/core/compiler/unit_graph.rs"
+    },
+    {
+      "path": "1.95.0/cargo/src/cargo/core/compiler/compile_kind.rs",
+      "sha256": "e1e9701eada3f0ea234adce031cb7999f1b9cbc553d0e6ecc0705c6894dc0a3d",
+      "size_bytes": 10066,
+      "url": "https://raw.githubusercontent.com/rust-lang/cargo/f2d3ce0bd7f24a49f8f72d9000448f8838c4e850/src/cargo/core/compiler/compile_kind.rs"
+    },
+    {
+      "path": "1.95.0/cargo/src/cargo/core/compiler/build_runner/compilation_files.rs",
+      "sha256": "5ab7f5e394d69a042c13229d59689c3b037eef966bfb0bad8098a713bc82d910",
+      "size_bytes": 41614,
+      "url": "https://raw.githubusercontent.com/rust-lang/cargo/f2d3ce0bd7f24a49f8f72d9000448f8838c4e850/src/cargo/core/compiler/build_runner/compilation_files.rs"
+    },
+    {
+      "path": "1.95.0/cargo/src/cargo/core/compiler/job_queue/mod.rs",
+      "sha256": "0cccd1337e007e233670579b1fa2aa236e776bbe72372f97209f9fcfe3e61260",
+      "size_bytes": 51491,
+      "url": "https://raw.githubusercontent.com/rust-lang/cargo/f2d3ce0bd7f24a49f8f72d9000448f8838c4e850/src/cargo/core/compiler/job_queue/mod.rs"
+    },
+    {
+      "path": "1.95.0/cargo/src/cargo/core/compiler/custom_build.rs",
+      "sha256": "2a2feaff913b3c63152ba5d7dc4328e73c01aeb239f3c9ca570f8fbf39db115e",
+      "size_bytes": 60442,
+      "url": "https://raw.githubusercontent.com/rust-lang/cargo/f2d3ce0bd7f24a49f8f72d9000448f8838c4e850/src/cargo/core/compiler/custom_build.rs"
+    },
+    {
+      "path": "1.95.0/rustc-dev-guide/src/backend/libs-and-metadata.md",
+      "sha256": "a440e598f4420203e92c7afec2e556bb4f230015b93b5a42dcc0fc1f6b950d4d",
+      "size_bytes": 9548,
+      "url": "https://raw.githubusercontent.com/rust-lang/rustc-dev-guide/9aa27000d65c7ac888430051cbe1c1281440be80/src/backend/libs-and-metadata.md"
+    },
+    {
+      "path": "1.95.0/rustc-dev-guide/src/serialization.md",
+      "sha256": "9e39ee5aa084458f22b1e449e049c2134772fc628c443f560c66b5f043c695f1",
+      "size_bytes": 9139,
+      "url": "https://raw.githubusercontent.com/rust-lang/rustc-dev-guide/9aa27000d65c7ac888430051cbe1c1281440be80/src/serialization.md"
+    },
+    {
+      "path": "1.95.0/rustc-dev-guide/src/queries/incremental-compilation.md",
+      "sha256": "303d23bb4381f3dd85b6b73cea75ab1f3e62ab1d5fbca8b226829a9fa802e9e2",
+      "size_bytes": 7552,
+      "url": "https://raw.githubusercontent.com/rust-lang/rustc-dev-guide/9aa27000d65c7ac888430051cbe1c1281440be80/src/queries/incremental-compilation.md"
+    },
+    {
+      "path": "1.95.0/sccache/docs/Rust.md",
+      "sha256": "e3a623f2e9593e23885cd75e5c3e9739933741e40359f9033c572394fbdd1410",
+      "size_bytes": 1062,
+      "url": "https://raw.githubusercontent.com/mozilla/sccache/b799af2eea02bba9e0ef2550775fe10296b62981/docs/Rust.md"
+    },
+    {
+      "path": "1.95.0/sccache/src/compiler/rust.rs",
+      "sha256": "acce3ffef85da68f9c63e0201dfd284f2f2214b48943cfa021117292838d9626",
+      "size_bytes": 136470,
+      "url": "https://raw.githubusercontent.com/mozilla/sccache/b799af2eea02bba9e0ef2550775fe10296b62981/src/compiler/rust.rs"
+    },
+    {
+      "path": "1.95.0/rust/compiler/rustc_metadata/src/rmeta/mod.rs",
+      "sha256": "6c090c2dbdd2feba445e6f6c6c83b71e6042ab1843b8458348003c6e2e18400b",
+      "size_bytes": 23899,
+      "url": "https://raw.githubusercontent.com/rust-lang/rust/59807616e1fa2540724bfbac14d7976d7e4a3860/compiler/rustc_metadata/src/rmeta/mod.rs"
+    },
+    {
+      "path": "1.95.0/rust/compiler/rustc_metadata/src/rmeta/encoder.rs",
+      "sha256": "f3d8524b24233a636329ddea372a24da1297eed54b6f31b3e88c9eeeeca685a0",
+      "size_bytes": 109056,
+      "url": "https://raw.githubusercontent.com/rust-lang/rust/59807616e1fa2540724bfbac14d7976d7e4a3860/compiler/rustc_metadata/src/rmeta/encoder.rs"
+    },
+    {
+      "path": "1.95.0/rust/compiler/rustc_metadata/src/rmeta/decoder.rs",
+      "sha256": "da92d2ee7f1ada6d28d43a522a2d9d4826a3e989ae06f376a287e2f081b10939",
+      "size_bytes": 78218,
+      "url": "https://raw.githubusercontent.com/rust-lang/rust/59807616e1fa2540724bfbac14d7976d7e4a3860/compiler/rustc_metadata/src/rmeta/decoder.rs"
+    },
+    {
+      "path": "1.95.0/rust/compiler/rustc_metadata/src/locator.rs",
+      "sha256": "c59b1338ea9019446d4995921626c29f905a89272a0350906f27d422bc206e8a",
+      "size_bytes": 51930,
+      "url": "https://raw.githubusercontent.com/rust-lang/rust/59807616e1fa2540724bfbac14d7976d7e4a3860/compiler/rustc_metadata/src/locator.rs"
+    },
+    {
+      "path": "1.95.0/rust/compiler/rustc_metadata/src/creader.rs",
+      "sha256": "4fd27abc464fabbf104d6e8feb31ae9786cace0c4ebf7901786f23c2975af730",
+      "size_bytes": 57026,
+      "url": "https://raw.githubusercontent.com/rust-lang/rust/59807616e1fa2540724bfbac14d7976d7e4a3860/compiler/rustc_metadata/src/creader.rs"
+    },
+    {
+      "path": "1.95.0/rust/compiler/rustc_codegen_ssa/src/back/archive.rs",
+      "sha256": "2e8ba9537c096294805996aa27006ee754fab97d3f954593b4243388321a85cf",
+      "size_bytes": 21453,
+      "url": "https://raw.githubusercontent.com/rust-lang/rust/59807616e1fa2540724bfbac14d7976d7e4a3860/compiler/rustc_codegen_ssa/src/back/archive.rs"
+    },
+    {
+      "path": "1.95.0/rust/compiler/rustc_codegen_ssa/src/back/metadata.rs",
+      "sha256": "a8f477c667ad0611bdaff16e5f0d5f2e183e40a3441c5372cbe66c6707c3b800",
+      "size_bytes": 31507,
+      "url": "https://raw.githubusercontent.com/rust-lang/rust/59807616e1fa2540724bfbac14d7976d7e4a3860/compiler/rustc_codegen_ssa/src/back/metadata.rs"
+    },
+    {
+      "path": "1.95.0/rust/compiler/rustc_codegen_ssa/src/back/write.rs",
+      "sha256": "80865b986735334634853478ca9d9ebd42f27ac72817e9a0493a2c5c29f6b3e0",
+      "size_bytes": 96541,
+      "url": "https://raw.githubusercontent.com/rust-lang/rust/59807616e1fa2540724bfbac14d7976d7e4a3860/compiler/rustc_codegen_ssa/src/back/write.rs"
+    },
+    {
+      "path": "1.95.0/rust/compiler/rustc_codegen_ssa/src/back/link.rs",
+      "sha256": "f8f2a9f987d7a0cce1412f8e6ab07bdbc1aa0e2cc6e62f8135f5e56a949af6e9",
+      "size_bytes": 146608,
+      "url": "https://raw.githubusercontent.com/rust-lang/rust/59807616e1fa2540724bfbac14d7976d7e4a3860/compiler/rustc_codegen_ssa/src/back/link.rs"
+    }
+  ],
+  "kind": "CorpusSnapshot",
+  "release": "1.95.0",
+  "retrieved_at": "2026-07-11T11:41:40.406498Z",
+  "schema_version": 1
+}
