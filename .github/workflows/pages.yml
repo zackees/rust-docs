@@ -1,40 +1,57 @@
-name: Pages
+name: Publish site
 
-# Minimal GitHub Pages publisher for the placeholder landing page.
+# Publishes compiled output to the orphan `site` branch, which GitHub Pages
+# serves. `main` holds the source (this workflow, the README, and — per issue
+# #1 — the Python ingestion/compilation tooling); the `site` branch holds only
+# compiled assets (per-version `index.db`, hashes, the static UI).
 #
-# This is intentionally thin — it deploys the static `site/` directory as-is.
-# It will be REPLACED by the full `build-site.yml` pipeline (per-version FTS5
-# `index.db` build + mandatory byte-range verify) described in issue #1. Until
-# that lands, this keeps https://zackees.github.io/rust-docs/ live.
+# Today this is minimal: it publishes the static `site-src/` landing page. The
+# full pipeline from #1 slots in at the "assemble" step — run the ingester +
+# per-version `build_index.py` (recompiling a version only when its
+# `source/<version>/` hash changes, reading prior hashes from the current
+# `site` branch), then assemble the multi-version site before publishing.
 
 on:
   push:
     branches: [main]
     paths:
-      - "site/**"
+      - "site-src/**"
       - ".github/workflows/pages.yml"
   workflow_dispatch: {}
 
 permissions:
-  contents: read
-  pages: write
-  id-token: write
+  contents: write   # push to the `site` branch
 
 concurrency:
-  group: pages
+  group: publish-site
   cancel-in-progress: false
 
 jobs:
-  deploy:
+  publish:
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deploy.outputs.page_url }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/configure-pages@v5
-      - uses: actions/upload-pages-artifact@v3
-        with:
-          path: site
-      - id: deploy
-        uses: actions/deploy-pages@v4
+      - name: Checkout main (source + tooling)
+        uses: actions/checkout@v4
+
+      - name: Assemble site output
+        run: |
+          set -eu
+          rm -rf _site && mkdir _site
+          cp -r site-src/. _site/
+          touch _site/.nojekyll   # keep underscore-prefixed files (e.g. _meta.json)
+          # TODO(#1): python scripts/build_site.py --out _site
+          #   (ingest + per-version index.db compile, hash-gated, then assemble)
+
+      - name: Publish to orphan `site` branch
+        run: |
+          set -eu
+          cd _site
+          git init -q
+          git checkout -q -b site
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -q -m "publish site (${GITHUB_SHA::7})"
+          git push -f "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" HEAD:site
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
