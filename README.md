@@ -1,2 +1,13 @@
 # rust-docs
+
 Release-versioned, verbatim snapshots of authoritative Rust/Cargo caching docs, made instantly searchable via per-version SQLite FTS5 databases on GitHub Pages.
+
+## 🔎 Live site
+
+**https://zackees.github.io/rust-docs/**
+
+Per-version databases will be published at `https://zackees.github.io/rust-docs/<release>/index.db` (queryable client-side via HTTP range requests). The page currently serves a placeholder while the corpus and search pipeline are built.
+
+## Status
+
+Scaffolding. The full design — per-version partitioned FTS5 databases, full-document retrieval, the ingest-by-triple workflow, and agent/LLM access — is tracked in [issue #1](https://github.com/zackees/rust-docs/issues/1).

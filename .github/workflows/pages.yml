@@ -1,0 +1,40 @@
+name: Pages
+
+# Minimal GitHub Pages publisher for the placeholder landing page.
+#
+# This is intentionally thin — it deploys the static `site/` directory as-is.
+# It will be REPLACED by the full `build-site.yml` pipeline (per-version FTS5
+# `index.db` build + mandatory byte-range verify) described in issue #1. Until
+# that lands, this keeps https://zackees.github.io/rust-docs/ live.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "site/**"
+      - ".github/workflows/pages.yml"
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+      - id: deploy
+        uses: actions/deploy-pages@v4

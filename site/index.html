@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>rust-docs — searchable Rust/Cargo caching corpus</title>
+  <style>
+    :root { color-scheme: light dark; }
+    body { max-width: 46rem; margin: 3rem auto; padding: 0 1.25rem;
+           font: 16px/1.6 system-ui, -apple-system, Segoe UI, Roboto, sans-serif; }
+    h1 { font-size: 1.6rem; margin-bottom: .25rem; }
+    .sub { color: #888; margin-top: 0; }
+    code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+    pre { background: rgba(127,127,127,.12); padding: 1rem; border-radius: 8px;
+          overflow-x: auto; }
+    .agents { border: 1px solid rgba(127,127,127,.35); border-radius: 10px;
+              padding: 1rem 1.25rem; margin: 1.5rem 0; }
+    .badge { display: inline-block; background: rgba(127,127,127,.15);
+             border-radius: 999px; padding: .1rem .6rem; font-size: .8rem; }
+    a { color: #4c8bf5; }
+  </style>
+</head>
+<body>
+  <h1>rust-docs</h1>
+  <p class="sub">Release-versioned, verbatim snapshots of authoritative Rust/Cargo
+     <strong>caching</strong> documentation — made instantly searchable via
+     per-version SQLite&nbsp;FTS5 databases served over HTTP range requests.</p>
+
+  <p><span class="badge">status: scaffolding</span> The search UI and per-version
+     databases are not built yet — see
+     <a href="https://github.com/zackees/rust-docs/issues/1">issue&nbsp;#1</a>
+     for the full design (per-version partitioned DBs, full-text retrieval,
+     ingest-by-triple workflow, agent access).</p>
+
+  <div class="agents">
+    <strong>For agents / LLMs</strong>
+    <p>Once databases are published, this block will carry the machine catalog:
+       a one-fetch <code>_meta.json</code> with the <code>version → index.db</code>
+       object map, the schema (<code>documents</code>, <code>chunks</code>,
+       <code>search_porter</code>, <code>document_text</code>), and canned example
+       queries. Prefer online HTTP-range querying; downloading a whole per-version
+       DB is fine too — each is only a few MB.</p>
+    <pre>{
+  "1.94.1": "https://zackees.github.io/rust-docs/1.94.1/index.db"
+}  <em>(placeholder — populated by the build-site pipeline)</em></pre>
+  </div>
+
+  <p>Repository: <a href="https://github.com/zackees/rust-docs">github.com/zackees/rust-docs</a></p>
+</body>
+</html>
