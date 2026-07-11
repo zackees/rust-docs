@@ -1,0 +1,62 @@
+# Declarative source list for scripts/fetch_docs.py + scripts/ingest.py.
+#
+# Each top-level key is an "anchor": a repo pinned to a specific ref for a
+# given Rust release. `resolve` tells ingest.py how to turn a release
+# string (e.g. "1.94.1") into a commit SHA for that repo. `files` is the
+# verbatim, in-repo path list to copy into source/<release>/<anchor>/...
+#
+# Scope (from issue #1): how Cargo & rustc do caching/freshness — not the
+# whole compiler or the whole Cargo Book.
+
+anchors:
+  rust:
+    repo: rust-lang/rust
+    resolve: tag                      # release string IS the tag, e.g. "1.94.1"
+    files:
+      - src/doc/rustc/src/command-line-arguments.md
+      - src/doc/rustc/src/codegen-options/index.md
+
+  cargo:
+    repo: rust-lang/cargo
+    resolve: submodule-of:rust        # pinned via rust-lang/rust@<release>:src/tools/cargo
+    submodule_path: src/tools/cargo
+    files:
+      - src/doc/src/reference/build-cache.md
+      - src/doc/src/reference/build-scripts.md
+      - src/cargo/core/compiler/fingerprint/mod.rs
+      - src/cargo/core/compiler/fingerprint/dep_info.rs
+      - src/cargo/core/compiler/unit.rs
+      - src/cargo/core/compiler/unit_dependencies.rs
+      - src/cargo/core/compiler/unit_graph.rs
+      - src/cargo/core/compiler/compile_kind.rs
+      - src/cargo/core/compiler/build_runner/compilation_files.rs
+      - src/cargo/core/compiler/job_queue/mod.rs
+      - src/cargo/core/compiler/custom_build.rs
+
+  rustc-dev-guide:
+    repo: rust-lang/rustc-dev-guide
+    resolve: nearest-commit-before-release-date
+    files:
+      - src/backend/libs-and-metadata.md
+      - src/serialization.md
+      - src/queries/incremental-compilation.md
+
+  sccache:
+    repo: mozilla/sccache
+    resolve: latest-release-tag       # own release cadence, not tied to the rust release
+    files:
+      - docs/Rust.md
+      - src/compiler/rust.rs
+
+# rustc source lives in rust-lang/rust itself (not a separate anchor) —
+# sparse-checked out alongside the rustc Book under the `rust` anchor.
+rustc_source_paths:
+  - compiler/rustc_metadata/src/rmeta/mod.rs
+  - compiler/rustc_metadata/src/rmeta/encoder.rs
+  - compiler/rustc_metadata/src/rmeta/decoder.rs
+  - compiler/rustc_metadata/src/locator.rs
+  - compiler/rustc_metadata/src/creader.rs
+  - compiler/rustc_codegen_ssa/src/back/archive.rs
+  - compiler/rustc_codegen_ssa/src/back/metadata.rs
+  - compiler/rustc_codegen_ssa/src/back/write.rs
+  - compiler/rustc_codegen_ssa/src/back/link.rs
