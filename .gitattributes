@@ -1,0 +1,4 @@
+# source/ holds verbatim upstream bytes whose sha256 is recorded in each
+# release's manifest.json. Never let git normalize line endings on
+# checkout/checkin or the checked-out bytes stop matching that hash.
+source/** -text
