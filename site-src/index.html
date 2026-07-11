@@ -6,7 +6,7 @@
   <title>rust-docs — searchable Rust/Cargo caching corpus</title>
   <style>
     :root { color-scheme: light dark; }
-    body { max-width: 46rem; margin: 3rem auto; padding: 0 1.25rem;
+    body { max-width: 52rem; margin: 3rem auto; padding: 0 1.25rem;
            font: 16px/1.6 system-ui, -apple-system, Segoe UI, Roboto, sans-serif; }
     h1 { font-size: 1.6rem; margin-bottom: .25rem; }
     .sub { color: #888; margin-top: 0; }
@@ -18,35 +18,184 @@
     .badge { display: inline-block; background: rgba(127,127,127,.15);
              border-radius: 999px; padding: .1rem .6rem; font-size: .8rem; }
     a { color: #4c8bf5; }
+    .searchbar { display: flex; gap: .5rem; margin: 1rem 0; }
+    select, input[type=search] { font: inherit; padding: .45rem .6rem;
+             border-radius: 6px; border: 1px solid rgba(127,127,127,.4); }
+    input[type=search] { flex: 1; }
+    .examples { font-size: .85rem; margin: .25rem 0 1rem; }
+    .examples button { font: inherit; font-size: .8rem; padding: .1rem .5rem;
+             margin: .15rem .25rem .15rem 0; border-radius: 999px;
+             border: 1px solid rgba(127,127,127,.35); background: transparent;
+             cursor: pointer; }
+    .result { padding: .75rem 0; border-bottom: 1px solid rgba(127,127,127,.2); }
+    .result .path { font-family: ui-monospace, monospace; font-size: .85rem; color: #888; }
+    .result .heading { font-weight: 600; }
+    .result .snippet mark { background: rgba(255, 220, 100, .55); }
+    .result .links { font-size: .82rem; margin-top: .2rem; }
+    .result .links a { margin-right: .8rem; }
+    .status { color: #888; font-size: .85rem; min-height: 1.2rem; }
   </style>
 </head>
 <body>
   <h1>rust-docs</h1>
   <p class="sub">Release-versioned, verbatim snapshots of authoritative Rust/Cargo
-     <strong>caching</strong> documentation — made instantly searchable via
-     per-version SQLite&nbsp;FTS5 databases served over HTTP range requests.</p>
+     <strong>caching</strong> documentation — searchable via per-version SQLite
+     FTS5 databases served over HTTP range requests.</p>
 
-  <p><span class="badge">status: scaffolding</span> The search UI and per-version
-     databases are not built yet — see
-     <a href="https://github.com/zackees/rust-docs/issues/1">issue&nbsp;#1</a>
-     for the full design (per-version partitioned DBs, full-text retrieval,
-     ingest-by-triple workflow, agent access).</p>
+  <div class="searchbar">
+    <select id="version" aria-label="Rust release (required)">
+      <option value="">Loading versions…</option>
+    </select>
+    <input id="q" type="search" placeholder="Search, e.g. fingerprint AND hash" disabled>
+  </div>
+  <div class="examples" id="examples"></div>
+  <div class="status" id="status"></div>
+  <div id="results"></div>
 
   <div class="agents">
     <strong>For agents / LLMs</strong>
-    <p>Once databases are published, this block will carry the machine catalog:
-       a one-fetch <code>_meta.json</code> with the <code>version → index.db</code>
-       object map, the schema (<code>documents</code>, <code>chunks</code>,
-       <code>search_porter</code>, <code>document_text</code>), and canned example
-       queries. Prefer online HTTP-range querying; downloading a whole per-version
-       DB is fine too — each is only a few MB.</p>
-    <pre>{
-  "1.94.1": "https://zackees.github.io/rust-docs/1.94.1/index.db"
-}  <em>(placeholder — populated by the build-site pipeline)</em></pre>
+    <p>One-fetch machine catalog: <a id="meta-link" href="_meta.json">_meta.json</a> —
+       version → DB-URL map, embedded schema, canned example queries, and per-version
+       <code>manifest.json</code> provenance links. Prefer online HTTP-range querying;
+       downloading a whole per-version DB is fine too — each is only a few MB.
+       A search hit's <code>doc_id</code> retrieves the full article via
+       <code>SELECT text FROM document_text WHERE doc_id=?</code> — no external
+       download or extraction tool needed.</p>
+    <pre id="version-map">{ "loading…": "…" }</pre>
   </div>
 
   <p>This <code>site</code> branch is an orphan branch of compiled output (databases,
      hashes, assets) published to GitHub Pages. Source + tooling live on
      <a href="https://github.com/zackees/rust-docs/tree/main"><code>main</code></a>.</p>
+
+  <script type="module">
+    import { openMemexDb, query } from './vendor/memex.js';
+
+    const versionSel = document.getElementById('version');
+    const qInput = document.getElementById('q');
+    const statusEl = document.getElementById('status');
+    const resultsEl = document.getElementById('results');
+    const examplesEl = document.getElementById('examples');
+    const versionMapEl = document.getElementById('version-map');
+    const metaLinkEl = document.getElementById('meta-link');
+
+    const MARK_OPEN = '';
+    const MARK_CLOSE = '';
+
+    let meta = null;
+    const dbCache = new Map(); // release -> { db, close }
+
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"']/g, c => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+      }[c]));
+    }
+
+    async function loadMeta() {
+      const res = await fetch('_meta.json', { cache: 'no-store' });
+      meta = await res.json();
+      metaLinkEl.href = '_meta.json';
+      versionMapEl.textContent = JSON.stringify(meta.version_db_url, null, 2);
+
+      versionSel.innerHTML = '<option value="">Select a release…</option>';
+      for (const release of Object.keys(meta.version_db_url)) {
+        const opt = document.createElement('option');
+        opt.value = release;
+        opt.textContent = release;
+        versionSel.appendChild(opt);
+      }
+      if (Object.keys(meta.version_db_url).length === 1) {
+        versionSel.value = Object.keys(meta.version_db_url)[0];
+        qInput.disabled = false;
+      }
+
+      examplesEl.innerHTML = '';
+      for (const ex of (meta.example_queries || [])) {
+        const b = document.createElement('button');
+        b.textContent = ex.question;
+        b.title = ex.match;
+        b.addEventListener('click', () => { qInput.value = ex.match; runSearch(); });
+        examplesEl.appendChild(b);
+      }
+    }
+
+    async function getDb(release) {
+      if (dbCache.has(release)) return dbCache.get(release);
+      const url = meta.version_db_url[release];
+      statusEl.textContent = `Opening ${release}/index.db…`;
+      const handle = await openMemexDb(url, { maxPageSize: 32768 });
+      dbCache.set(release, handle);
+      return handle;
+    }
+
+    function docHref(doc) {
+      // Prefer the human-readable rendered doc page; fall back to the
+      // pinned upstream raw URL; the in-repo verbatim path is always shown.
+      return doc.rendered_url || doc.upstream_url;
+    }
+
+    async function runSearch() {
+      const release = versionSel.value;
+      const q = qInput.value.trim();
+      resultsEl.innerHTML = '';
+      if (!release) {
+        statusEl.textContent = 'Select a release first — version is required, there is no cross-version default.';
+        return;
+      }
+      if (!q) {
+        statusEl.textContent = '';
+        return;
+      }
+      try {
+        const { db } = await getDb(release);
+        statusEl.textContent = 'Searching…';
+        const sql = `
+          SELECT documents.path, documents.upstream_url, documents.rendered_url,
+                 documents.doc_id, chunks.heading,
+                 snippet(search_porter, 0, ?, ?, ' ... ', 20) AS snip
+          FROM search_porter
+          JOIN chunks ON chunks.rowid = search_porter.rowid
+          JOIN documents ON documents.doc_id = chunks.doc_id
+          WHERE search_porter MATCH ?
+          ORDER BY bm25(search_porter)
+          LIMIT 20`;
+        const { rows, columns } = await query(db, sql, [MARK_OPEN, MARK_CLOSE, q]);
+        statusEl.textContent = `${rows.length} result(s) in ${release}`;
+        resultsEl.innerHTML = rows.map(r => {
+          const row = Object.fromEntries(columns.map((c, i) => [c, r[i]]));
+          const snip = escapeHtml(row.snip)
+            .split(MARK_OPEN).join('<mark>')
+            .split(MARK_CLOSE).join('</mark>');
+          const href = docHref(row);
+          return `<div class="result">
+            <div class="heading">${escapeHtml(row.heading || '')}</div>
+            <div class="path">${escapeHtml(row.path)}</div>
+            <div class="snippet">${snip}</div>
+            <div class="links">
+              ${href ? `<a href="${escapeHtml(href)}" target="_blank" rel="noopener">view doc</a>` : ''}
+              <a href="${escapeHtml(row.upstream_url)}" target="_blank" rel="noopener">upstream source</a>
+            </div>
+          </div>`;
+        }).join('') || '<p class="status">No matches.</p>';
+      } catch (err) {
+        statusEl.textContent = `Error: ${err.message || err}`;
+        console.error(err);
+      }
+    }
+
+    versionSel.addEventListener('change', () => {
+      qInput.disabled = !versionSel.value;
+      if (versionSel.value) runSearch();
+    });
+    let debounce;
+    qInput.addEventListener('input', () => {
+      clearTimeout(debounce);
+      debounce = setTimeout(runSearch, 250);
+    });
+
+    loadMeta().catch(err => {
+      statusEl.textContent = `Could not load _meta.json: ${err.message || err}`;
+    });
+  </script>
 </body>
 </html>
