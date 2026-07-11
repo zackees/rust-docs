@@ -46,7 +46,7 @@ def _check_full_text_retrieval(conn: sqlite3.Connection) -> bool:
     return row is not None and row[1] > 1000
 
 
-def test_release(release: str) -> bool:
+def check_release(release: str) -> bool:
     db_path = SITE_DIR / release / "index.db"
     if not db_path.exists():
         raise SystemExit(f"missing {db_path}; run build_index.py --release {release} first")
@@ -84,7 +84,7 @@ def main(argv: list[str]) -> int:
 
     ok = True
     for release in releases:
-        ok = test_release(release) and ok
+        ok = check_release(release) and ok
     return 0 if ok else 1
 
 
