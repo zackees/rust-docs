@@ -1,0 +1,160 @@
+name: Build site
+
+# ---------------------------------------------------------------------------
+# Builds the per-release FTS5 search databases + static UI and publishes them
+# to the orphan `site` branch, which GitHub Pages serves at
+# https://zackees.github.io/rust-docs/ (source: branch `site`, path `/`).
+#
+# `main` holds source (source/<release>/ verbatim docs + this tooling); the
+# `site` branch holds only compiled output (per-version index.db + the
+# static UI + memex vendor bundle). A release's index.db is recompiled only
+# when its source/<release>/ content hash changes (scripts/build_all.py);
+# unchanged releases are restored from the current `site` branch instead of
+# rebuilt, but the published artifact always contains every release's DB.
+#
+# The verify job is MANDATORY: GitHub Pages gzips `application/octet-stream`
+# and can ignore Range unless the client sends `Accept-Encoding: identity`,
+# which makes SQLite read the gzip magic as page 0 -> "database disk image
+# is malformed". If the live index.db for any release doesn't answer 206
+# Partial Content with a valid Content-Range and SQLite magic bytes, the
+# workflow FAILS.
+# ---------------------------------------------------------------------------
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: "30 4 * * *"   # daily backstop
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: build-site
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main (source + tooling)
+        uses: actions/checkout@v4
+
+      - name: Checkout current site branch (cache source)
+        uses: actions/checkout@v4
+        continue-on-error: true
+        with:
+          ref: site
+          path: prev_site
+
+      - name: Set up uv + Python 3.13
+        uses: astral-sh/setup-uv@v3
+        with:
+          python-version: "3.13"
+
+      - name: Create venv + install deps
+        run: |
+          uv venv .venv --python 3.13
+          uv pip install --python .venv/bin/python pyyaml
+          echo "$PWD/.venv/bin" >> $GITHUB_PATH
+
+      - name: Fetch memex WASM bundle
+        run: python scripts/fetch_memex.py
+
+      - name: Build every release (hash-gated recompile)
+        run: |
+          if [ -d prev_site ] && [ -f prev_site/_meta.json ]; then
+            python scripts/build_all.py --prev-site prev_site
+          else
+            python scripts/build_all.py
+          fi
+
+      - name: Assemble site/ directory
+        run: python scripts/build_site.py
+
+      - name: Publish to orphan site branch
+        run: |
+          set -eu
+          cd site
+          git init -q
+          git checkout -q -b site
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -q -m "publish site (${GITHUB_SHA::7})"
+          git push -f "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" HEAD:site
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # ---------------------------------------------------------------------------
+  # Post-deploy verification: byte-range probe against every release's live
+  # index.db. This is the gate that catches the GitHub Pages gzip pitfall
+  # before anyone loads the browser page.
+  # ---------------------------------------------------------------------------
+  verify:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Wait for Pages propagation (up to 90 s)
+        run: |
+          set -eu
+          URL="https://zackees.github.io/rust-docs/_meta.json"
+          echo "Polling ${URL} for propagation..."
+          for i in $(seq 1 30); do
+            code=$(curl -sS -o /dev/null -w '%{http_code}' -I "${URL}" || echo 000)
+            echo "  attempt ${i}: HTTP ${code}"
+            if [ "${code}" = "200" ]; then
+              echo "Pages is live."
+              exit 0
+            fi
+            sleep 3
+          done
+          echo "::error::Pages did not respond 200 on ${URL} within 90 s"
+          exit 1
+
+      - name: Byte-range probe every release's index.db
+        run: |
+          set -eu
+          META_URL="https://zackees.github.io/rust-docs/_meta.json"
+          curl -sS -o meta.json "${META_URL}"
+          echo "--- _meta.json releases ---"
+          python3 - "$META_URL" <<'PYEOF'
+          import json
+          with open("meta.json") as f:
+              meta = json.load(f)
+          urls = list(meta["version_db_url"].values())
+          with open("db_urls.txt", "w") as f:
+              f.write("\n".join(urls))
+          print("\n".join(urls))
+          PYEOF
+
+          fail=0
+          while IFS= read -r URL; do
+            [ -z "$URL" ] && continue
+            echo "=== ${URL} ==="
+            curl -sS -o db_range.bin -D db_headers.txt \
+                 -r 0-4095 -H "Accept-Encoding: identity" "${URL}"
+            cat db_headers.txt
+
+            if ! grep -qi "^HTTP/[0-9.]* 206" db_headers.txt \
+               && ! grep -q "206 Partial Content" db_headers.txt; then
+              echo "::error::${URL} did not return 206 Partial Content"
+              fail=1
+            fi
+            if ! grep -qiE "^Content-Range: bytes 0-4095/[0-9]+" db_headers.txt; then
+              echo "::error::${URL} missing or malformed Content-Range header"
+              fail=1
+            fi
+            magic=$(head -c 4 db_range.bin | xxd -p)
+            if [ "$magic" != "53514c69" ]; then
+              echo "::error::${URL} first 4 bytes are not 'SQLi' (got ${magic})"
+              fail=1
+            fi
+          done < db_urls.txt
+
+          if [ "$fail" -ne 0 ]; then
+            echo "::error::deploy verification FAILED for one or more release DBs"
+            exit 1
+          fi
+          echo "OK: every release's index.db is byte-range servable with correct SQLite header."
