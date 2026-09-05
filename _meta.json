@@ -1,0 +1,160 @@
+{
+  "built_at": "2026-09-05T08:27:08.503336Z",
+  "commit": "9794a7b9bce7b732e147f8c119dfa0d3a6fe1d0f",
+  "example_queries": [
+    {
+      "match": "fingerprint AND (input OR hash OR dirty OR fresh)",
+      "question": "What inputs go into a unit fingerprint?"
+    },
+    {
+      "match": "\"fingerprint\" AND (directory OR json OR \"on disk\" OR store)",
+      "question": "Where does Cargo persist freshness state on disk (.fingerprint/)?"
+    },
+    {
+      "match": "target AND (deps OR incremental OR rlib OR rmeta)",
+      "question": "What lives in target/, deps/, incremental/; rlib/rmeta linking layout?"
+    },
+    {
+      "match": "\"dep info\" OR (\"d files\") OR (discovered AND dependency)",
+      "question": "How does Cargo track discovered source inputs via dep-info .d files?"
+    },
+    {
+      "match": "extern AND (rmeta OR rlib OR metadata OR hash)",
+      "question": "How are --extern dependencies identified (path/contents/crate hash)?"
+    },
+    {
+      "match": "(\"rerun if changed\") OR (\"rerun if env changed\") OR (\"build script\" AND rerun)",
+      "question": "When does a build script re-run (rerun-if-changed / -env-changed)?"
+    },
+    {
+      "match": "(rustflags OR profile OR feature OR lto OR \"codegen units\") AND (hash OR fingerprint OR metadata)",
+      "question": "What invalidates the cache besides source -- rustflags/profile/features/LTO/codegen-units?"
+    },
+    {
+      "match": "(\"remap path prefix\") OR (remap AND path AND (prefix OR portable))",
+      "question": "How to make artifacts path-independent for cross-workspace cache sharing?"
+    },
+    {
+      "match": "(pipelin OR metadata) AND (rmeta OR ready OR \"job queue\")",
+      "question": "Metadata pipelining -- when can a downstream crate start before .rlib is done?"
+    },
+    {
+      "match": "rmeta AND rlib AND (link OR downstream OR codegen)",
+      "question": "When is .rmeta enough vs .rlib required?"
+    },
+    {
+      "match": "incremental AND (relocat OR portab OR \"work product\" OR \"dependency graph\")",
+      "question": "Can incremental state be relocated between machines/dirs?"
+    },
+    {
+      "match": "(\"proc-macro\" OR dylib OR cdylib OR bin) AND (link OR cache OR \"not cacheable\")",
+      "question": "Which crate types invoke the linker / what is unsafe to cache?"
+    },
+    {
+      "match": "incremental AND (\"work product\" OR \"dep graph\" OR \"query cache\" OR serialized)",
+      "question": "What's inside rustc's incremental on-disk cache (dep-graph, query results, work products)?"
+    },
+    {
+      "match": "(\"extra filename\") OR (\"C metadata\") OR (disambiguator AND crate)",
+      "question": "How do -C metadata / -C extra-filename disambiguate symbols + output filenames?"
+    },
+    {
+      "match": "(rmeta OR metadata) AND (header OR version OR svh OR \"strict version\" OR validate)",
+      "question": ".rmeta format + how a crate's SVH/hash is validated on load?"
+    },
+    {
+      "match": "(locate OR load) AND crate AND (extern OR \"search path\" OR rlib OR rmeta OR dylib)",
+      "question": "How does rustc locate + load crates (-L search paths, --extern, rlib/rmeta/dylib)?"
+    },
+    {
+      "match": "(mtime OR timestamp OR modified OR checksum) AND (fresh OR fingerprint OR rebuild)",
+      "question": "mtime vs checksum freshness -- how does Cargo decide a file changed?"
+    },
+    {
+      "match": "(env OR environment OR rustflags) AND (variable OR \"rerun if env changed\" OR track OR fingerprint)",
+      "question": "How are env vars tracked (env!, rerun-if-env-changed, RUSTFLAGS) in the key?"
+    },
+    {
+      "match": "(include OR \"include str\" OR \"include bytes\") AND (dep OR track OR source OR rerun)",
+      "question": "How are include! / include_bytes! / include_str! inputs tracked?"
+    },
+    {
+      "match": "fingerprint AND (dependency OR upstream OR propagat OR transitive) AND (dirty OR invalidat OR recompil)",
+      "question": "How does a dependency's fingerprint propagate -- an upstream change dirtying dependents?"
+    },
+    {
+      "match": "rlib AND (archive OR object OR \"symbol table\" OR member)",
+      "question": ".rlib archive internals -- object files, metadata object, symbol table?"
+    },
+    {
+      "match": "(\"split debuginfo\") OR (debuginfo AND (dwo OR pdb OR dsym OR split))",
+      "question": "Debug-info sidecars -- -C split-debuginfo, .dwo / .pdb / .dSYM?"
+    },
+    {
+      "match": "(\"codegen units\") AND (object OR parallel OR determinis OR split)",
+      "question": "How do codegen-units affect object outputs + determinism?"
+    },
+    {
+      "match": "(\"build script\" OR \"proc macro\" OR \"build dependencies\") AND host AND target",
+      "question": "Cross-compile: host vs target -- build-deps + proc-macros built for the host?"
+    },
+    {
+      "match": "query AND (red OR green OR reuse OR \"try mark green\" OR \"dep node\")",
+      "question": "rustc's red-green algorithm -- when is a query result reused?"
+    },
+    {
+      "match": "emit AND (metadata OR link OR obj OR \"dep info\" OR llvm)",
+      "question": "What --emit output types exist (metadata / link / obj / dep-info / llvm-*)?"
+    },
+    {
+      "match": "panic AND (abort OR unwind OR strategy) AND (fingerprint OR metadata OR abi)",
+      "question": "Does panic strategy (abort/unwind) enter the cache key / affect ABI?"
+    }
+  ],
+  "guidance": "Version is a required selector -- open one release's index.db by URL from version_db_url; there is no unscoped/default cross-version query. Prefer online HTTP-range querying; downloading a whole per-version DB is fine too, each is only a few MB. A search_porter MATCH hit returns a doc_id; SELECT text FROM document_text WHERE doc_id=? retrieves the full untruncated article with no external download/extraction tool.",
+  "memex_sha": "babce09059b6202b6af695ec6461607c17446c3d",
+  "releases": [
+    {
+      "db_url": "https://zackees.github.io/rust-docs/1.94.1/index.db",
+      "manifest_url": "https://zackees.github.io/rust-docs/1.94.1/manifest.json",
+      "release": "1.94.1",
+      "sha256": "e9af7451460c1c138f53dfda2d0d0667780bf54e1c8bca9aff421d1dd9e2036e",
+      "size_bytes": 3768320
+    },
+    {
+      "db_url": "https://zackees.github.io/rust-docs/1.95.0/index.db",
+      "manifest_url": "https://zackees.github.io/rust-docs/1.95.0/manifest.json",
+      "release": "1.95.0",
+      "sha256": "6e645946d8574842a16990aaf9463483c6e8ebec08cc393d1df5ac568ae2abcd",
+      "size_bytes": 3833856
+    }
+  ],
+  "schema": {
+    "chunks": [
+      "doc_id",
+      "heading",
+      "text"
+    ],
+    "document_text": [
+      "doc_id",
+      "text"
+    ],
+    "documents": [
+      "doc_id",
+      "release",
+      "repo",
+      "canonical_kind",
+      "path",
+      "upstream_url",
+      "rendered_url",
+      "sha256",
+      "size_bytes"
+    ],
+    "fulltext": "FTS5(text) external-content over document_text, tokenize='porter unicode61 remove_diacritics 1'",
+    "search_porter": "FTS5(text) external-content over chunks, tokenize='porter unicode61 remove_diacritics 1'"
+  },
+  "version_db_url": {
+    "1.94.1": "https://zackees.github.io/rust-docs/1.94.1/index.db",
+    "1.95.0": "https://zackees.github.io/rust-docs/1.95.0/index.db"
+  }
+}
