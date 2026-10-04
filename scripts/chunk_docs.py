@@ -63,7 +63,7 @@ def _item_heading(sig_line: str) -> str:
     return sig_line.strip().rstrip("{").strip()
 
 
-def _chunk_rust(text: str) -> list[dict]:
+def _chunk_rust(text: str) -> list[dict]:  # noqa: C901  # baseline, zackees/rust-docs#4
     lines = text.splitlines()
     chunks: list[dict] = []
 
