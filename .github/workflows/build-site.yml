@@ -21,6 +21,7 @@ name: Build site
 # ---------------------------------------------------------------------------
 
 on:
+  pull_request:
   push:
     branches: [main]
   schedule:
@@ -35,7 +36,17 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  lint:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check complexity of all maintained Python tooling
+        run: pipx run --spec ruff==0.16.1 ruff check scripts tests examples
+
   build:
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout main (source + tooling)
